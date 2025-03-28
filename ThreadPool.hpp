@@ -39,11 +39,11 @@ public:
 	ThreadPool(const ThreadPool &obj);
 	~ThreadPool();
 
-	bool	threadsRunning(void) const;
+	bool	isThreadsRunning(void) const;
 
 	ThreadPool	&operator=(const ThreadPool &obj);
 
-	void	startThreads(size_t nbThreads);
+	void	startThreads(size_t nbThreads, bool waitThreadCreation);
 	void	stopThreads(void);
 	void	addTask(void (*function)(void *), void *param);
 	void	waitAllTasks(void);

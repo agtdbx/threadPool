@@ -21,14 +21,14 @@ ThreadPool::ThreadPool(size_t nbThreads)
 	this->nbThreads = nbThreads;
 	if (this->nbThreads < 1)
 		this->nbThreads = 1;
-	this->startThreads(nbThreads);
+	this->startThreads(nbThreads, true);
 }
 
 
 ThreadPool::ThreadPool(const ThreadPool &obj)
 {
 	this->nbThreads = obj.nbThreads;
-	this->startThreads(this->nbThreads);
+	this->startThreads(this->nbThreads, true);
 }
 
 //---- Destructor --------------------------------------------------------------
@@ -41,7 +41,7 @@ ThreadPool::~ThreadPool()
 //**** ACCESSORS ***************************************************************
 //---- Getters -----------------------------------------------------------------
 
-bool	ThreadPool::threadsRunning(void) const
+bool	ThreadPool::isThreadsRunning(void) const
 {
 	return (this->nbThreads == 0);
 }
@@ -63,7 +63,7 @@ ThreadPool	&ThreadPool::operator=(const ThreadPool &obj)
 
 //**** PUBLIC METHODS **********************************************************
 
-void	ThreadPool::startThreads(size_t nbThreads)
+void	ThreadPool::startThreads(size_t nbThreads, bool waitThreadCreation)
 {
 	if (nbThreads < 1)
 		return ;
@@ -72,6 +72,7 @@ void	ThreadPool::startThreads(size_t nbThreads)
 	this->params.resize(this->nbThreads);
 	this->tasks.resize(this->nbThreads);
 
+	ThreadStatus	status;
 	for (size_t i = 0; i < this->nbThreads; i++)
 	{
 		this->tasks[i].function = NULL;
@@ -83,8 +84,10 @@ void	ThreadPool::startThreads(size_t nbThreads)
 
 		this->threads.push_back(new std::thread(threadRoutine, &this->params[i]));
 
-		ThreadStatus	status = THREAD_STARTING;
+		if (!waitThreadCreation)
+			continue;
 
+		status = THREAD_STARTING;
 		while (status == THREAD_STARTING)
 		{
 			usleep(10000);
