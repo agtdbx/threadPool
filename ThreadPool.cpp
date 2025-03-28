@@ -208,11 +208,14 @@ static void	threadRoutine(ThreadParams *params)
 	mutex->unlock();
 	status = THREAD_WAITING;
 
-	while (status != THREAD_ENDING)
+	while (true)
 	{
 		mutex->lock();
 		status = params->status;
 		mutex->unlock();
+
+		if (status == THREAD_ENDING)
+			break;
 
 		if (status == THREAD_PROCESSING)
 		{
